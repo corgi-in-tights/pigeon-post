@@ -11,10 +11,10 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.thecorgi.pigeonpost.PigeonPost;
 import net.thecorgi.pigeonpost.client.renderer.BirdhouseBlockRenderer;
 import net.thecorgi.pigeonpost.client.renderer.PigeonEntityRenderer;
-import net.thecorgi.pigeonpost.common.envelope.EnvelopeGuiDescription;
-import net.thecorgi.pigeonpost.common.envelope.EnvelopeScreen;
-import net.thecorgi.pigeonpost.common.envelope.EnvelopeTooltipComponent;
-import net.thecorgi.pigeonpost.common.envelope.EnvelopeTooltipData;
+import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeGuiDescription;
+import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeScreen;
+import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeTooltipComponent;
+import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeTooltipData;
 import net.thecorgi.pigeonpost.common.registry.BlockRegistry;
 import net.thecorgi.pigeonpost.common.registry.EntityRegistry;
 

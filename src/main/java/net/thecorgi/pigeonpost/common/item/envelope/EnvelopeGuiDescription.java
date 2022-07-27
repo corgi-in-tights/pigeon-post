@@ -1,4 +1,4 @@
-package net.thecorgi.pigeonpost.common.envelope;
+package net.thecorgi.pigeonpost.common.item.envelope;
 
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.*;
@@ -22,6 +22,7 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
     WTextField fieldX = new WTextField();
     WTextField fieldY = new WTextField();
     WTextField fieldZ = new WTextField();
+    WTextField intendedReciever = new WTextField();
 
     static Boolean checkIfCoordStr(String v){
         if (v.length() > 0) {
@@ -40,7 +41,7 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
 
         WPlainPanel root = new WPlainPanel();
         setRootPanel(root);
-        root.setSize(180, 60);
+        root.setSize(180, 75);
         root.setInsets(Insets.ROOT_PANEL);
 
         NbtCompound nbtCompound = envelope.getOrCreateNbt();
@@ -66,6 +67,9 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
         fieldZ.setSize(44, 15);
         fieldZ.setTextPredicate(coordsPredicate);
 
+        root.add(intendedReciever, 8, 55);
+        intendedReciever.setSize(98, 15);
+        intendedReciever.setSuggestion("Recipient (blank for any)");
 
         long address = nbtCompound.getLong(EnvelopeItem.ADDRESS_KEY);
         fieldX.setText(String.valueOf(BlockPos.unpackLongX(address)));
@@ -74,7 +78,7 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
 
 
 //        nbtCompound.putLong(EnvelopeItem.ADDRESS_KEY, );
-//        envelope.setNbt(nbtCompound);
+//        item.setNbt(nbtCompound);
 //        this.updateToClient();
 
 
@@ -95,6 +99,7 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
 
                 PacketByteBuf buf = PacketByteBufs.create();
                 buf.writeLong(pos);
+                buf.writeString(intendedReciever.getText());
                 ClientPlayNetworking.send(ADDRESS_PACKET_ID, buf);
 
             } catch (NumberFormatException ex) { // should ideally not happen :) but you never know

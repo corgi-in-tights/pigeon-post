@@ -1,4 +1,4 @@
-package net.thecorgi.pigeonpost.common.envelope;
+package net.thecorgi.pigeonpost.common.item.envelope;
 
 import io.github.cottonmc.cotton.gui.client.CottonInventoryScreen;
 import net.minecraft.entity.player.PlayerEntity;

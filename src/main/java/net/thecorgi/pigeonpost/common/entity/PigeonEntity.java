@@ -74,12 +74,13 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
 
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new EscapeDangerGoal(this, 1.25D));
-        this.goalSelector.add(2, new LookAtEntityGoal(this, PlayerEntity.class, 4.0F));
-        this.goalSelector.add(3, new SitGoal(this));
+        this.goalSelector.add(1, new SitGoal(this));
+        this.goalSelector.add(2, new EscapeDangerGoal(this, 1.25D));
+        this.goalSelector.add(3, new LookAtEntityGoal(this, PlayerEntity.class, 4.0F));
         this.goalSelector.add(4, new FollowOwnerGoal(this, 1.0D, 8.0F, 14.0F, true));
         this.goalSelector.add(5, new FlyGoal(this, 1.0D));
     }
+
 
     protected EntityNavigation createNavigation(World world) {
         BirdNavigation nav = new BirdNavigation(this, world);
@@ -87,6 +88,7 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
         nav.setCanSwim(true);
         nav.setCanEnterOpenDoors(true);
         return nav;
+
     }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
@@ -169,6 +171,8 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
             this.setVelocity(vec3d.multiply(1.0D, 0.55D, 1.0D));
         }
 
+        System.out.println("PIGEON ENTITY: IS SITTING? " + this.isSitting());
+
         this.flapWings();
         super.tickMovement();
     }
@@ -197,6 +201,7 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
                     stack.decrement(1);
                 }
 
+
                 if (!this.isSilent()) {
                     this.world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_PARROT_EAT, this.getSoundCategory(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
                 }
@@ -222,6 +227,8 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
             this.mountOnHead(player);
         } else if (this.isTamed() && this.isOwner(player) && this.isOnGround() && !player.isSneaking()) {
             this.setSitting(!this.isSitting());
+            this.jumping = false;
+            this.navigation.stop();
         } else {
             return super.interactMob(player, hand);
         }

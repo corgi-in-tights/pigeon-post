@@ -1,4 +1,4 @@
-package net.thecorgi.pigeonpost.common.envelope;
+package net.thecorgi.pigeonpost.common.item.envelope;
 
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.item.ItemStack;

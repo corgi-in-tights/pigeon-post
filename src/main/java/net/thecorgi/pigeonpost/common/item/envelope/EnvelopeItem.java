@@ -1,4 +1,4 @@
-package net.thecorgi.pigeonpost.common.envelope;
+package net.thecorgi.pigeonpost.common.item.envelope;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
@@ -31,7 +31,7 @@ public class EnvelopeItem extends Item implements NamedScreenHandlerFactory {
     public static final String ITEMS_KEY = "Items";
     public static final String ADDRESS_KEY = "Address";
 
-    public static final Identifier ID = PigeonPost.id("envelope.gui");
+    public static final Identifier ID = PigeonPost.id("item.gui");
 
     static int size = 3;
     private static final int ITEM_BAR_COLOR = MathHelper.packRgb(1.0F, 0.55F, 0.1F);
@@ -104,7 +104,7 @@ public class EnvelopeItem extends Item implements NamedScreenHandlerFactory {
 
     void addItem(ItemStack envelope, ItemStack stack) {
         NbtCompound nbtCompound = envelope.getOrCreateNbt();
-        SimpleInventory inv = new SimpleInventory(3);
+        SimpleInventory inv = new SimpleInventory(size);
 
         if (nbtCompound.contains(ITEMS_KEY)) {
             inv.readNbtList(nbtCompound.getList(ITEMS_KEY, 10));
@@ -123,10 +123,6 @@ public class EnvelopeItem extends Item implements NamedScreenHandlerFactory {
         DefaultedList<ItemStack> stacks = DefaultedList.of();
         getStoredItems(envelope).forEach(stacks::add);
 
-        while (stacks.size() < size) {
-            stacks.add(ItemStack.EMPTY);
-        }
-
         return Optional.of(new EnvelopeTooltipData(stacks, size));
     }
 
@@ -141,36 +137,43 @@ public class EnvelopeItem extends Item implements NamedScreenHandlerFactory {
             stack.setNbt(nbtCompound);
         }
 
-        NamedScreenHandlerFactory factory = new SimpleNamedScreenHandlerFactory((syncId, inventory, user) -> new EnvelopeGuiDescription(syncId, inventory, stack), new TranslatableText("item.pigeonpost.envelope.gui"));
+        NamedScreenHandlerFactory factory = new SimpleNamedScreenHandlerFactory((syncId, inventory, user) -> new EnvelopeGuiDescription(syncId, inventory, stack), new TranslatableText("item.pigeonpost.item.gui"));
         player.openHandledScreen(factory);
 
         return TypedActionResult.success(player.getStackInHand(hand));
     }
 
-    public static boolean containsAddress(ItemStack stack) {
-        NbtCompound nbtCompound = stack.getOrCreateNbt();
-        return !nbtCompound.isEmpty() && nbtCompound.contains(ADDRESS_KEY);
+    public static void offerOrDropEnvelope(NbtList items, PlayerEntity player) {
+        PlayerInventory pl = player.getInventory();
+        for(int i = 0; i < items.size(); ++i) {
+            NbtCompound item = items.getCompound(i);
+            pl.offerOrDrop(ItemStack.fromNbt(item));
+        }
     }
 
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         NbtCompound nbtCompound = stack.getOrCreateNbt();
-        if (containsAddress(stack)) {
+        if (nbtCompound.contains(ADDRESS_KEY)) {
             long pos = nbtCompound.getLong(ADDRESS_KEY);
             int x = BlockPos.unpackLongX(pos);
             int y = BlockPos.unpackLongY(pos);
             int z = BlockPos.unpackLongZ(pos);
 
-            tooltip.add(new TranslatableText("item.pigeonpost.envelope.address.valid", Integer.toString(x), Integer.toString(y), Integer.toString(z)).formatted(Formatting.GRAY));
+            tooltip.add(new TranslatableText("item.pigeonpost.item.address.valid", Integer.toString(x), Integer.toString(y), Integer.toString(z)).formatted(Formatting.GRAY));
         } else {
-            tooltip.add(new TranslatableText("item.pigeonpost.envelope.address.empty").formatted(Formatting.GRAY));
+            tooltip.add(new TranslatableText("item.pigeonpost.item.address.empty").formatted(Formatting.GRAY));
+        }
+
+        if (nbtCompound.contains("Recipient")) {
+            tooltip.add(new TranslatableText("item.pigeonpost.item.recipient", nbtCompound.getString("Recipient")).formatted(Formatting.GRAY));
         }
     }
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText("item.pigeonpost.envelope.gui");
+        return new TranslatableText("item.pigeonpost.item.gui");
     }
 
     @Nullable

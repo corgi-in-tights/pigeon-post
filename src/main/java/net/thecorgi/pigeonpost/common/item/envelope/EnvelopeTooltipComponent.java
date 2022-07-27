@@ -1,4 +1,4 @@
-package net.thecorgi.pigeonpost.common.envelope;
+package net.thecorgi.pigeonpost.common.item.envelope;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -31,31 +31,41 @@ public class EnvelopeTooltipComponent implements TooltipComponent {
     }
 
     public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
-        int i = this.getColumns();
-        int j = this.getRows();
-        boolean bl = this.inventorySize >= 64;
-        int k = 0;
+        int columns = this.getColumns();
+        int rows = this.getRows();
+        int index = 0;
 
-        for(int l = 0; l < j; ++l) {
-            for(int m = 0; m < i; ++m) {
-                int n = x + m * 18 + 1;
-                int o = y + l * 20 + 1;
-                this.drawSlot(n, o, k++, bl, textRenderer, matrices, itemRenderer, z);
+        for(int row = 0; row < rows; ++row) {
+            for(int column = 0; column < columns; ++column) {
+                this.drawSlot(x + column * 18 + 1, y + row * 20 + 1, index++,
+                        textRenderer, matrices, itemRenderer, z);
             }
         }
 
-        this.drawOutline(x, y, i, j, matrices, z);
+        this.drawOutline(x, y, columns, rows, matrices, z);
     }
 
-    private void drawSlot(int x, int y, int index, boolean shouldBlock, TextRenderer textRenderer, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
-        if (index >= this.inventory.size()) {
-            this.draw(matrices, x, y, z, shouldBlock ? EnvelopeTooltipComponent.Sprite.BLOCKED_SLOT : EnvelopeTooltipComponent.Sprite.SLOT);
+    private void drawSlot(int x, int y, int index, TextRenderer textRenderer, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
+        ItemStack itemStack;
+        if (index < inventorySize) {
+            itemStack = ItemStack.EMPTY;
         } else {
-            ItemStack itemStack = this.inventory.get(index);
-            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
-            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
-            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
+            itemStack = this.inventory.get(index);
         }
+
+        this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+        itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+        itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
+
+
+//        if (index >= this.inventory.size()) {
+//            this.draw(matrices, x, y, z, index == 0 ? EnvelopeTooltipComponent.Sprite.POSTCARD_SLOT : EnvelopeTooltipComponent.Sprite.SLOT);
+//        } else {
+//            ItemStack itemStack = this.inventory.get(index);
+//            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+//            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+//            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
+//        }
     }
 
     private void drawOutline(int x, int y, int columns, int rows, MatrixStack matrices, int z) {
@@ -84,17 +94,17 @@ public class EnvelopeTooltipComponent implements TooltipComponent {
     }
 
     private int getColumns() {
-        return Math.max(3, (int)Math.ceil(Math.sqrt(this.inventory.size() + 1.0D)));
+        return inventorySize;
     }
 
     private int getRows() {
-        return (int)Math.ceil((double)this.inventory.size() / this.getColumns());
+        return inventorySize / 4;
     }
 
     @Environment(EnvType.CLIENT)
     private enum Sprite {
         SLOT(0, 0, 18, 20),
-        BLOCKED_SLOT(0, 40, 18, 20),
+        POSTCARD_SLOT(0, 40, 18, 20),
         BORDER_VERTICAL(0, 18, 1, 20),
         BORDER_HORIZONTAL_TOP(0, 20, 18, 1),
         BORDER_HORIZONTAL_BOTTOM(0, 60, 18, 1),

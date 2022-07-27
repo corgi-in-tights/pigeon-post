@@ -6,7 +6,8 @@
   "item.pigeonpost.envelope.gui": "Set Address",
 
   "item.pigeonpost.envelope.address.valid": "XYZ: %s %s %s",
-  "item.pigeonpost.envelope.address.empty": "No address set",
+  "item.pigeonpost.envelope.address.empty": "Use to set address",
+  "item.pigeonpost.envelope.recipient": "For %s %s %s",
 
   "block.pigeonpost.birdhouse.full": "Address occupied by another pigeon.",
   "block.pigeonpost.birdhouse.invalid": "No birdhouse found at address.",
