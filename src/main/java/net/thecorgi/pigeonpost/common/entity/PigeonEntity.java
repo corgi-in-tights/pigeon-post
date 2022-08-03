@@ -33,6 +33,7 @@ import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.thecorgi.pigeonpost.PigeonPost;
+import net.thecorgi.pigeonpost.common.registry.ItemRegistry;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -47,6 +48,7 @@ import java.util.Set;
 
 public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flutterer {
     public static final TrackedData<Integer> VARIANT;
+    public static final TrackedData<Boolean> IS_COOL;
     private final AnimationFactory factory = new AnimationFactory(this);
     private static final Set<Item> TAMING_INGREDIENTS;
     private boolean songPlaying;
@@ -55,6 +57,7 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
 
     static {
         VARIANT = DataTracker.registerData(PigeonEntity.class, TrackedDataHandlerRegistry.INTEGER);
+        IS_COOL = DataTracker.registerData(PigeonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
         TAMING_INGREDIENTS = Sets.newHashSet(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
     }
 
@@ -111,6 +114,7 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
         this.setVariant(random.nextInt(1, 6));
+        this.makeCool(false);
         if (entityData == null) {
             entityData = new PassiveData(false);
         }
@@ -120,6 +124,7 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(VARIANT, 0);
+        this.dataTracker.startTracking(IS_COOL, false);
     }
 
     public void writeCustomDataToNbt(NbtCompound nbt) {
@@ -139,6 +144,15 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
     public void setVariant(int variant) {
         this.dataTracker.set(VARIANT, variant);
     }
+
+    public boolean isCool() {
+        return this.dataTracker.get(IS_COOL);
+    }
+
+    public void makeCool(boolean bl) {
+        this.dataTracker.set(IS_COOL, bl);
+    }
+
 
     public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
         return false;
@@ -170,8 +184,6 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
         if (!this.onGround && vec3d.y < 0.0D) {
             this.setVelocity(vec3d.multiply(1.0D, 0.55D, 1.0D));
         }
-
-        System.out.println("PIGEON ENTITY: IS SITTING? " + this.isSitting());
 
         this.flapWings();
         super.tickMovement();
@@ -222,14 +234,20 @@ public class PigeonEntity extends TameableHeadEntity implements IAnimatable, Flu
                 }
             }
             return ActionResult.success(this.world.isClient);
+        } else if (this.isTamed() && this.isOwner(player)) {
+            if (stack.isOf(ItemRegistry.TINY_SUNGLASSES)) {
+              this.makeCool(true);
+              stack.decrement(1);
+            } else if (player.isSneaking()) {
+                this.mountOnHead(player);
+            } else if (this.isOnGround()) {
+                this.setSitting(!this.isSitting());
+                this.jumping = false;
+                this.navigation.stop();
+            }
         }
-        else if (this.isTamed() && this.isOwner(player) && player.isSneaking()) {
-            this.mountOnHead(player);
-        } else if (this.isTamed() && this.isOwner(player) && this.isOnGround() && !player.isSneaking()) {
-            this.setSitting(!this.isSitting());
-            this.jumping = false;
-            this.navigation.stop();
-        } else {
+
+        else {
             return super.interactMob(player, hand);
         }
         return ActionResult.success(this.world.isClient);

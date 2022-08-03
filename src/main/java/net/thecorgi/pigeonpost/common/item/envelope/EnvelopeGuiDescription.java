@@ -8,15 +8,15 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.thecorgi.pigeonpost.PigeonPost;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
-import static net.thecorgi.pigeonpost.PigeonPost.ADDRESS_PACKET_ID;
+import static net.thecorgi.pigeonpost.PigeonPost.ENVELOPE_PACKET_ID;
 
 public class EnvelopeGuiDescription extends SyncedGuiDescription {
     WTextField fieldX = new WTextField();
@@ -24,27 +24,34 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
     WTextField fieldZ = new WTextField();
     WTextField intendedReciever = new WTextField();
 
-    static Boolean checkIfCoordStr(String v){
+    public static boolean checkIfCoordStr(String v){
         if (v.length() > 0) {
             char ch = v.substring(v.length() - 1).charAt(0);
             return Character.isDigit(ch) || ch == '-';
         }
         return false;
     }
+    public static Predicate<String> coordsPredicate = EnvelopeGuiDescription::checkIfCoordStr;
 
-    Predicate<String> coordsPredicate = EnvelopeGuiDescription::checkIfCoordStr;
+    public EnvelopeGuiDescription(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+        this(syncId, playerInventory);
 
-    public EnvelopeGuiDescription(int syncId, PlayerInventory playerInventory, ItemStack envelope) {
-        super(PigeonPost.SCREEN_HANDLER_TYPE, syncId, playerInventory);
+        String r = buf.readString();
+        if (!Objects.equals(r, "") || !Objects.equals(r, " ")) { intendedReciever.setText(r);}
+        long address = buf.readLong();
+        fieldX.setText(String.valueOf(BlockPos.unpackLongX(address)));
+        fieldY.setText(String.valueOf(BlockPos.unpackLongY(address)));
+        fieldZ.setText(String.valueOf(BlockPos.unpackLongZ(address)));
+    }
 
-        if (!(envelope.getItem() instanceof EnvelopeItem)) return;
+    public EnvelopeGuiDescription(int syncId, PlayerInventory playerInventory) {
+        super(PigeonPost.ENVELOPE_SCREEN_HANDLER, syncId, playerInventory);
 
         WPlainPanel root = new WPlainPanel();
         setRootPanel(root);
         root.setSize(180, 75);
         root.setInsets(Insets.ROOT_PANEL);
 
-        NbtCompound nbtCompound = envelope.getOrCreateNbt();
 
         WLabel xLabel = new WLabel(new LiteralText("X"));
         root.add(xLabel, 27, 16);
@@ -67,24 +74,13 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
         fieldZ.setSize(44, 15);
         fieldZ.setTextPredicate(coordsPredicate);
 
-        root.add(intendedReciever, 8, 55);
-        intendedReciever.setSize(98, 15);
+        root.add(intendedReciever, 8, 50);
+        intendedReciever.setSize(142, 15);
         intendedReciever.setSuggestion("Recipient (blank for any)");
 
-        long address = nbtCompound.getLong(EnvelopeItem.ADDRESS_KEY);
-        fieldX.setText(String.valueOf(BlockPos.unpackLongX(address)));
-        fieldY.setText(String.valueOf(BlockPos.unpackLongY(address)));
-        fieldZ.setText(String.valueOf(BlockPos.unpackLongZ(address)));
-
-
-//        nbtCompound.putLong(EnvelopeItem.ADDRESS_KEY, );
-//        item.setNbt(nbtCompound);
-//        this.updateToClient();
-
-
         root.validate(this);
-
     }
+
 
     @Override
     public void close(PlayerEntity player) {
@@ -100,7 +96,7 @@ public class EnvelopeGuiDescription extends SyncedGuiDescription {
                 PacketByteBuf buf = PacketByteBufs.create();
                 buf.writeLong(pos);
                 buf.writeString(intendedReciever.getText());
-                ClientPlayNetworking.send(ADDRESS_PACKET_ID, buf);
+                ClientPlayNetworking.send(ENVELOPE_PACKET_ID, buf);
 
             } catch (NumberFormatException ex) { // should ideally not happen :) but you never know
                 return;

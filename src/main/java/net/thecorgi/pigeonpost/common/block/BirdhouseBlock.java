@@ -121,7 +121,6 @@ public class BirdhouseBlock extends BlockWithEntity {
         super.onBreak(world, pos, state, player);
     }
 
-    @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         System.out.println("TICK: Returned pigeon :)");
 
@@ -163,11 +162,9 @@ public class BirdhouseBlock extends BlockWithEntity {
     public BlockState mirror(BlockState state, BlockMirror mirror) {
         return state.rotate(mirror.getRotation(state.get(FACING)));
     }
-    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
         stateManager.add(FACING, POWERED);
     }
-    @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         return this.getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite());
     }

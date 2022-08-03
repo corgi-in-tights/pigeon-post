@@ -9,6 +9,14 @@
   "item.pigeonpost.envelope.address.empty": "Use to set address",
   "item.pigeonpost.envelope.recipient": "For %s %s %s",
 
+  "item.pigeonpost.address_book": "Address Book",
+  "item.pigeonpost.address_book.gui": "Address Book",
+  "item.pigeonpost.address_book.field": "%s",
+
+  "item.pigeonpost.tiny_sunglasses": "Tiny Sunglasses",
+  "item.pigeonpost.tiny_sunglasses.tooltip1": "Professional attire;",
+  "item.pigeonpost.tiny_sunglasses.tooltip2": "for the professional pigeon.",
+
   "block.pigeonpost.birdhouse.full": "Address occupied by another pigeon.",
   "block.pigeonpost.birdhouse.invalid": "No birdhouse found at address.",
 

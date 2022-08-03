@@ -14,17 +14,18 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
+import net.thecorgi.pigeonpost.common.item.address_book.AddressBookGuiDescription;
+import net.thecorgi.pigeonpost.common.item.address_book.AddressBookItem;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeGuiDescription;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeItem;
 import net.thecorgi.pigeonpost.common.registry.BlockRegistry;
 import net.thecorgi.pigeonpost.common.registry.EntityRegistry;
 import net.thecorgi.pigeonpost.common.registry.ItemRegistry;
 
-import static net.thecorgi.pigeonpost.common.registry.ItemRegistry.ENVELOPE;
-
 public class PigeonPost implements ModInitializer {
     public static String ModID = "pigeonpost";
-    public static Identifier ADDRESS_PACKET_ID = id("address_packet");
+    public static Identifier ENVELOPE_PACKET_ID = id("packet.pigeonpost.envelope.close");
+    public static Identifier ADDRESS_BOOK_PACKET_ID = id("packet.pigeonpost.address_book.close");
 
     public static Identifier id(String path) {
         return new Identifier(ModID, path);
@@ -32,10 +33,11 @@ public class PigeonPost implements ModInitializer {
 
     public static final ItemGroup GENERAL = FabricItemGroupBuilder.create(
                     id("general"))
-            .icon(() -> new ItemStack(ENVELOPE))
+            .icon(() -> new ItemStack(ItemRegistry.ENVELOPE))
             .build();
 
-    public static ScreenHandlerType<EnvelopeGuiDescription> SCREEN_HANDLER_TYPE;
+    public static ScreenHandlerType<EnvelopeGuiDescription> ENVELOPE_SCREEN_HANDLER;
+    public static ScreenHandlerType<AddressBookGuiDescription> ADDRESS_BOOK_SCREEN_HANDLER;
 
     public static SoundEvent ENTITY_PIGEON_IDLE = new SoundEvent(id("entity.pigeon.idle"));
 
@@ -48,24 +50,34 @@ public class PigeonPost implements ModInitializer {
         BiomeModifications.addSpawn(BiomeSelectors.categories(Biome.Category.PLAINS, Biome.Category.FOREST, Biome.Category.MOUNTAIN), SpawnGroup.CREATURE,
                 EntityRegistry.PIGEON, 1, 2, 7);
 
-        SCREEN_HANDLER_TYPE = ScreenHandlerRegistry.registerSimple(EnvelopeItem.ID, (syncId, inventory) -> new EnvelopeGuiDescription(syncId, inventory, ENVELOPE.getDefaultStack()));
+//        ENVELOPE_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(EnvelopeItem.ID, (syncId, inventory) -> new EnvelopeGuiDescription(syncId, inventory, ENVELOPE.getDefaultStack()));
+
+//        ENVELOPE_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(EnvelopeItem.ID, ((syncId, inventory, buf) -> new EnvelopeGuiDescription(syncId, inventory, ENVELOPE.getDefaultStack())));
+        ENVELOPE_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(EnvelopeItem.ID, EnvelopeGuiDescription::new);
+        ADDRESS_BOOK_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(AddressBookItem.ID, AddressBookGuiDescription::new);
 
         Registry.register(Registry.SOUND_EVENT, id("entity.pigeon.idle"), ENTITY_PIGEON_IDLE);
 
-        ServerPlayNetworking.registerGlobalReceiver(ADDRESS_PACKET_ID, (server, player, handler, buf, responseSender) -> {
-
-            if (player.getWorld().isClient()) return;
-
+        ServerPlayNetworking.registerGlobalReceiver(ENVELOPE_PACKET_ID, (server, player, handler, buf, responseSender) -> {
             ItemStack stack = player.getStackInHand(player.getActiveHand());
-
-            if (stack.isOf(ENVELOPE)) {
+            if (stack.isOf(ItemRegistry.ENVELOPE)) {
                 NbtCompound nbtCompound = stack.getOrCreateNbt();
-
                 nbtCompound.putLong(EnvelopeItem.ADDRESS_KEY, buf.readLong());
                 nbtCompound.putString("Recipient", buf.readString());
                 stack.setNbt(nbtCompound);
             }
         });
+
+        ServerPlayNetworking.registerGlobalReceiver(ADDRESS_BOOK_PACKET_ID, (server, player, handler, buf, responseSender) -> {
+            ItemStack stack = player.getStackInHand(player.getActiveHand());
+            if (stack.isOf(ItemRegistry.ADDRESS_BOOK)) {
+                NbtCompound nbtCompound = stack.getOrCreateNbt();
+                nbtCompound.put("Fields", buf.readNbt());
+                nbtCompound.putInt("Selected", buf.readInt());
+                stack.setNbt(nbtCompound);
+            }
+        });
+
 
     }
 }

@@ -5,6 +5,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.tooltip.BundleTooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -46,18 +48,17 @@ public class EnvelopeTooltipComponent implements TooltipComponent {
     }
 
     private void drawSlot(int x, int y, int index, TextRenderer textRenderer, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
-        ItemStack itemStack;
-        if (index < inventorySize) {
-            itemStack = ItemStack.EMPTY;
-        } else {
-            itemStack = this.inventory.get(index);
+        if (index < this.inventory.size()) {
+            ItemStack itemStack = this.inventory.get(index);
+            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
+        } else if (index < inventorySize) {
+            ItemStack itemStack = ItemStack.EMPTY;
+            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
         }
-
-        this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
-        itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
-        itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
-
-
 //        if (index >= this.inventory.size()) {
 //            this.draw(matrices, x, y, z, index == 0 ? EnvelopeTooltipComponent.Sprite.POSTCARD_SLOT : EnvelopeTooltipComponent.Sprite.SLOT);
 //        } else {
@@ -104,7 +105,6 @@ public class EnvelopeTooltipComponent implements TooltipComponent {
     @Environment(EnvType.CLIENT)
     private enum Sprite {
         SLOT(0, 0, 18, 20),
-        POSTCARD_SLOT(0, 40, 18, 20),
         BORDER_VERTICAL(0, 18, 1, 20),
         BORDER_HORIZONTAL_TOP(0, 20, 18, 1),
         BORDER_HORIZONTAL_BOTTOM(0, 60, 18, 1),
