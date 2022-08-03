@@ -16,6 +16,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.thecorgi.pigeonpost.common.item.address_book.AddressBookGuiDescription;
 import net.thecorgi.pigeonpost.common.item.address_book.AddressBookItem;
+import net.thecorgi.pigeonpost.common.item.burner.BurnerGuiDescription;
+import net.thecorgi.pigeonpost.common.item.burner.BurnerItem;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeGuiDescription;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeItem;
 import net.thecorgi.pigeonpost.common.registry.BlockRegistry;
@@ -26,6 +28,7 @@ public class PigeonPost implements ModInitializer {
     public static String ModID = "pigeonpost";
     public static Identifier ENVELOPE_PACKET_ID = id("packet.pigeonpost.envelope.close");
     public static Identifier ADDRESS_BOOK_PACKET_ID = id("packet.pigeonpost.address_book.close");
+    public static Identifier BURNER_PACKET_ID = id("packet.pigeonpost.burner.close");
 
     public static Identifier id(String path) {
         return new Identifier(ModID, path);
@@ -38,6 +41,7 @@ public class PigeonPost implements ModInitializer {
 
     public static ScreenHandlerType<EnvelopeGuiDescription> ENVELOPE_SCREEN_HANDLER;
     public static ScreenHandlerType<AddressBookGuiDescription> ADDRESS_BOOK_SCREEN_HANDLER;
+    public static ScreenHandlerType<BurnerGuiDescription> BURNER_SCREEN_HANDLER;
 
     public static SoundEvent ENTITY_PIGEON_IDLE = new SoundEvent(id("entity.pigeon.idle"));
 
@@ -55,6 +59,7 @@ public class PigeonPost implements ModInitializer {
 //        ENVELOPE_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(EnvelopeItem.ID, ((syncId, inventory, buf) -> new EnvelopeGuiDescription(syncId, inventory, ENVELOPE.getDefaultStack())));
         ENVELOPE_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(EnvelopeItem.ID, EnvelopeGuiDescription::new);
         ADDRESS_BOOK_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(AddressBookItem.ID, AddressBookGuiDescription::new);
+        BURNER_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(BurnerItem.ID, BurnerGuiDescription::new);
 
         Registry.register(Registry.SOUND_EVENT, id("entity.pigeon.idle"), ENTITY_PIGEON_IDLE);
 
@@ -74,6 +79,15 @@ public class PigeonPost implements ModInitializer {
                 NbtCompound nbtCompound = stack.getOrCreateNbt();
                 nbtCompound.put("Fields", buf.readNbt());
                 nbtCompound.putInt("Selected", buf.readInt());
+                stack.setNbt(nbtCompound);
+            }
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(BURNER_PACKET_ID, (server, player, handler, buf, responseSender) -> {
+            ItemStack stack = player.getStackInHand(player.getActiveHand());
+            if (stack.isOf(ItemRegistry.BURNER)) {
+                NbtCompound nbtCompound = stack.getOrCreateNbt();
+                nbtCompound.putString("Text", buf.readString());
                 stack.setNbt(nbtCompound);
             }
         });

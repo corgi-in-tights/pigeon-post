@@ -17,6 +17,10 @@
   "item.pigeonpost.tiny_sunglasses.tooltip1": "Professional attire;",
   "item.pigeonpost.tiny_sunglasses.tooltip2": "for the professional pigeon.",
 
+  "item.pigeonpost.burner": "Burner",
+  "item.pigeonpost.burner.gui": "Letter",
+  "item.pigeonpost.burner.tooltip": "Expires after reading.",
+
   "block.pigeonpost.birdhouse.full": "Address occupied by another pigeon.",
   "block.pigeonpost.birdhouse.invalid": "No birdhouse found at address.",
 

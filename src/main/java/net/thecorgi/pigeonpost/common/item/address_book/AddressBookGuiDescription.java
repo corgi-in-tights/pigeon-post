@@ -32,12 +32,6 @@ public class AddressBookGuiDescription extends SyncedGuiDescription {
     int selected = 0;
     WButton previousButton = null;
 
-    @Environment(CLIENT)
-    @Override
-    public void addPainters() {
-        getRootPanel().setBackgroundPainter((matrices, left, top, panel) -> ScreenDrawing.texturedGuiRect(matrices, left, top, panel.getWidth(), panel.getHeight(), id("textures/gui/container/address_book.png"), 0xFF_FFFFFF));
-    }
-
     ArrayList<FieldData> fields = new ArrayList<>();
 
     WTextField label = new WTextField(Text.of("Label"));
@@ -49,8 +43,8 @@ public class AddressBookGuiDescription extends SyncedGuiDescription {
     WLabel z_label = new WLabel("Z");
 
     WIconButton confirm = new WIconButton(0);
-    WIconButton remove = new WIconButton(1);
-    WIconButton add = new WIconButton(2);
+    WIconButton add = new WIconButton(1);
+    WIconButton remove = new WIconButton(2);
 
     WBox box = new WBox(Axis.VERTICAL);
 
@@ -189,6 +183,12 @@ public class AddressBookGuiDescription extends SyncedGuiDescription {
         root.remove(y_label);
         root.remove(z_label);
         root.remove(confirm);
+    }
+
+    @Environment(CLIENT)
+    @Override
+    public void addPainters() {
+        getRootPanel().setBackgroundPainter((matrices, left, top, panel) -> ScreenDrawing.texturedGuiRect(matrices, left, top, panel.getWidth(), panel.getHeight(), id("textures/gui/container/address_book.png"), 0xFF_FFFFFF));
     }
 
     @Override

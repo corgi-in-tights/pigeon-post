@@ -48,25 +48,31 @@ public class EnvelopeTooltipComponent implements TooltipComponent {
     }
 
     private void drawSlot(int x, int y, int index, TextRenderer textRenderer, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
-        if (index < this.inventory.size()) {
-            ItemStack itemStack = this.inventory.get(index);
-            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
-            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
-            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
-        } else if (index < inventorySize) {
-            ItemStack itemStack = ItemStack.EMPTY;
-            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
-            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
-            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
-        }
+//        if (index < this.inventory.size()) {
+//            ItemStack itemStack = this.inventory.get(index);
+//            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+//            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+//            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
+//        } else if (index < inventorySize) {
+//            ItemStack itemStack = ItemStack.EMPTY;
+//            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+//            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+//            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
+//        }
 //        if (index >= this.inventory.size()) {
-//            this.draw(matrices, x, y, z, index == 0 ? EnvelopeTooltipComponent.Sprite.POSTCARD_SLOT : EnvelopeTooltipComponent.Sprite.SLOT);
+//            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
 //        } else {
 //            ItemStack itemStack = this.inventory.get(index);
 //            this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
 //            itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
 //            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
 //        }
+
+
+        ItemStack itemStack = index < this.inventory.size() ? this.inventory.get(index) : ItemStack.EMPTY;
+        this.draw(matrices, x, y, z, EnvelopeTooltipComponent.Sprite.SLOT);
+        itemRenderer.renderInGuiWithOverrides(itemStack, x + 1, y + 1, index);
+        itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
     }
 
     private void drawOutline(int x, int y, int columns, int rows, MatrixStack matrices, int z) {

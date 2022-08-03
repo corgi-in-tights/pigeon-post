@@ -13,6 +13,8 @@ import net.thecorgi.pigeonpost.client.renderer.BirdhouseBlockRenderer;
 import net.thecorgi.pigeonpost.client.renderer.PigeonEntityRenderer;
 import net.thecorgi.pigeonpost.common.item.address_book.AddressBookGuiDescription;
 import net.thecorgi.pigeonpost.common.item.address_book.AddressBookScreen;
+import net.thecorgi.pigeonpost.common.item.burner.BurnerGuiDescription;
+import net.thecorgi.pigeonpost.common.item.burner.BurnerScreen;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeGuiDescription;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeScreen;
 import net.thecorgi.pigeonpost.common.item.envelope.EnvelopeTooltipComponent;
@@ -36,6 +38,7 @@ public class PigeonPostClient implements ClientModInitializer {
 
         ScreenRegistry.<EnvelopeGuiDescription, EnvelopeScreen>register(PigeonPost.ENVELOPE_SCREEN_HANDLER, EnvelopeScreen::new);
         ScreenRegistry.<AddressBookGuiDescription, AddressBookScreen>register(PigeonPost.ADDRESS_BOOK_SCREEN_HANDLER, AddressBookScreen::new);
+        ScreenRegistry.<BurnerGuiDescription, BurnerScreen>register(PigeonPost.BURNER_SCREEN_HANDLER, BurnerScreen::new);
         BlockEntityRendererRegistry.register(BlockRegistry.BIRDHOUSE_BLOCK_ENTITY, (BlockEntityRendererFactory.Context rendererDispatcherIn) -> new BirdhouseBlockRenderer());
     }
 }

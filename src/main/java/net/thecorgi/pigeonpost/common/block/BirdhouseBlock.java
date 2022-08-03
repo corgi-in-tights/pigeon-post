@@ -6,7 +6,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ItemStackParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.*;
@@ -53,7 +56,6 @@ public class BirdhouseBlock extends BlockWithEntity {
             // validate
             BlockEntity blockEntityA = world.getBlockEntity(pos);
             if (blockEntityA instanceof BirdhouseBlockEntity birdhouseA) {
-                System.out.println("IS ON COOLDOWN? " + birdhouseA.isOnCooldown());
                 if (birdhouseA.isOnCooldown()) return ActionResult.SUCCESS;
 
                 if (stack.isOf(ItemRegistry.ENVELOPE)) { // sending item
@@ -72,9 +74,17 @@ public class BirdhouseBlock extends BlockWithEntity {
                             // an artificial cool down where 1 second is 1 block travelled
                             // gets squared distance between A and B then rounds
                             birdhouseA.setOnCooldown(true);
+                            if (world.getServer() != null) {
+                                ServerWorld serverWorld = world.getServer().getWorld(world.getRegistryKey());
+                                if (serverWorld != null) {
+                                    serverWorld.spawnParticles(
+                                            new ItemStackParticleEffect(ParticleTypes.ITEM, Items.FEATHER.getDefaultStack()),
+                                            pos.getX(), pos.getY(), pos.getZ(),
+                                            15, 0.25, 0.25, 0.25, 0.02);
+                                }
+                            }
                             int delay = (int) Math.round(Math.sqrt(pos.getSquaredDistance(newPosition, true))) * 20;
                             world.createAndScheduleBlockTick(pos, this, delay);
-                            System.out.println("TICK: Starting pigeon :I");
                         }
                     }
                 } else {
@@ -89,7 +99,6 @@ public class BirdhouseBlock extends BlockWithEntity {
                         birdhouseA.giveEnvelope(player);
 
                     } else if (birdhouseA.hasPigeon() && birdhouseA.isPigeonOwner(player)) { // trying to release pigeon
-                        System.out.println("RELEASING: " + birdhouseA.isOnCooldown());
                         birdhouseA.tryReleasePigeon(state, player);
                     } else if (player.hasPassengers()) { // trying to put pigeon
                         List<Entity> entities = player.getPassengerList();

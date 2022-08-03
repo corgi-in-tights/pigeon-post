@@ -134,6 +134,10 @@ public class EnvelopeItem extends Item implements ExtendedScreenHandlerFactory {
         DefaultedList<ItemStack> stacks = DefaultedList.of();
         getStoredItems(envelope).forEach(stacks::add);
 
+//        while (stacks.size() < size) {
+//            stacks.add(ItemStack.EMPTY);
+//        }
+
         return Optional.of(new EnvelopeTooltipData(stacks, size));
     }
 
